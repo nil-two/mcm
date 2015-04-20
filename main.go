@@ -112,12 +112,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	conf, err := NewManager(flag.Arg(0))
+	m, err := NewManager(flag.Arg(0))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "mcm:", err)
 		os.Exit(1)
 	}
-	if err = conf.Download(); err != nil {
+	if err = m.Download(); err != nil {
 		fmt.Fprintln(os.Stderr, "mcm:", err)
 		os.Exit(1)
 	}
