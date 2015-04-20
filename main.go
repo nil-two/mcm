@@ -49,8 +49,8 @@ type Mod struct {
 }
 
 type Manager struct {
-	Root   string `toml:"root"`
-	Mods   []Mod  `toml:"mod"`
+	Root string `toml:"root"`
+	Mods []Mod  `toml:"mod"`
 }
 
 func NewManager(confPath string) (*Manager, error) {
@@ -93,12 +93,12 @@ func (m *Manager) Download() error {
 }
 
 func main() {
-	isHelp    := flag.Bool("help", false, "")
+	isHelp := flag.Bool("help", false, "")
 	isVersion := flag.Bool("version", false, "")
 	flag.Usage = usage
 	flag.Parse()
 
-	if  *isHelp {
+	if *isHelp {
 		usage()
 		os.Exit(2)
 	}
