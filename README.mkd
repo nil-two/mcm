@@ -44,7 +44,7 @@ url  = "http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/222872
 
 [[mod]]
 name = "chocolateQuest-1.7.10-1.0.jar"
-url  = "http://www.curse.com/mc-mods/minecraft/better-dungeons/2227053"
+url  = "http://addons.curse.cursecdn.com/files/2227/53/chocolateQuest-1.7.10-1.0.jar"
 ```
 Here [other example](https://github.com/kusabashira/mcm/tree/master/examples).
                        
