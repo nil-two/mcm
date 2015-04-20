@@ -2,6 +2,10 @@ mcm
 ===
 Manage MOD of Minecraft with TOML recipe file.
 
+Download
+-----
+See [releases](https://github.com/kusabashira/mcm/releases)
+
 Usage
 ------
 ```
