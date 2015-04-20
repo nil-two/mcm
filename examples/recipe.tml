@@ -1,11 +1,11 @@
-[[mods]]
-name = "ComputerCraft.jar"
+[[mod]]
+name = "ComputerCraft1.72.jar"
 url  = "http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download"
 
-[[mods]]
-name = "CutAll.zip"
-url  = "http://forum.minecraftuser.jp/download/file.php?id=54757"
+[[mod]]
+name = "chocolateQuest-1.7.10-1.0.jar"
+url  = "http://www.curse.com/mc-mods/minecraft/better-dungeons/2227053"
 
-[[mods]]
-name = "Bamboo.jar"
-url  = "http://forum.minecraftuser.jp/download/file.php?id=50620"
+[[mod]]
+name = "Bamboo-2.6.8.3.jar"
+url  = "https://dl.dropboxusercontent.com/u/37248864/Bamboo-2.6.8.3.jar"

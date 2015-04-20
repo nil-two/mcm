@@ -39,12 +39,12 @@ url  = "<MOD URL>"
 ###example
 ```toml
 [[mod]]
-name = "ComputerCraft.jar"
+name = "ComputerCraft1.72.jar"
 url  = "http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download"
 
 [[mod]]
-name = "CutAll.zip"
-url  = "http://forum.minecraftuser.jp/download/file.php?id=54757"
+name = "chocolateQuest-1.7.10-1.0.jar"
+url  = "http://www.curse.com/mc-mods/minecraft/better-dungeons/2227053"
 ```
 Here [other example](https://github.com/kusabashira/mcm/tree/master/examples).
                        
