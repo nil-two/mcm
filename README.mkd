@@ -1,0 +1,58 @@
+mcm
+===
+Manage MOD of Minecraft with TOML recipe file.
+
+Usage
+------
+```
+mcm [OPTION]... RECIPE
+
+Options:
+	--help       show this help message
+	--version    print the version
+
+
+$ mcm recipe.tml
+(Download MOD using recipe.tml)
+
+$ mcm 1.7.10.tml
+(Download MOD using 1.7.10.tml)
+```
+
+Recipe
+------
+Describe in [TOML](https://github.com/toml-lang/toml) recipe
+in the following format.
+
+```toml
+[[mod]]
+name = "<MOD file name>"
+url  = "<MOD URL>"
+
+[[mod]]
+name = "<MOD file name>"
+url  = "<MOD URL>"
+
+...
+```
+
+###example
+```toml
+[[mod]]
+name = "ComputerCraft.jar"
+url  = "http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download"
+
+[[mod]]
+name = "CutAll.zip"
+url  = "http://forum.minecraftuser.jp/download/file.php?id=54757"
+```
+Here [other example](https://github.com/kusabashira/mcm/tree/master/examples).
+                       
+
+License
+--------
+MIT License
+
+Author
+-------
+wara <kusabashira227@gmail.com>
