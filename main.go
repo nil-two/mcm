@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/mitchellh/go-homedir"
@@ -49,12 +51,14 @@ type Mod struct {
 }
 
 type Manager struct {
+	log  *log.Logger
 	Root string `toml:"root"`
 	Mods []Mod  `toml:"mod"`
 }
 
-func NewManager(confPath string) (*Manager, error) {
+func NewManager(confPath string, logWriter io.Writer) (*Manager, error) {
 	m := &Manager{
+		log:  log.New(logWriter, "", log.LstdFlags),
 		Root: filepath.Join(homePath, ".minecraft"),
 	}
 
@@ -67,28 +71,48 @@ func NewManager(confPath string) (*Manager, error) {
 }
 
 func (m *Manager) Download() error {
+	var errors []string
+
+	m.log.Println("INFO:", "Start mcm")
 	for _, mod := range m.Mods {
 		modPath := filepath.Join(m.Root, "mods", mod.Name)
 		if isExist(modPath) {
+			m.log.Println("INFO:", "Already installed:", mod.Name)
 			continue
 		}
 
+		m.log.Println("INFO:", "Start install:", mod.Name)
 		modFile, err := os.Create(modPath)
 		if err != nil {
-			return err
+			m.log.Println("ERRO:", "Failed create file:", modPath)
+			errors = append(errors, err.Error())
+			continue
 		}
 
+		m.log.Println("INFO:", "Download from:", mod.URL)
 		remoteFile, err := http.Get(mod.URL)
 		if err != nil {
-			return err
+			m.log.Println("ERRO:", "Failed Download:", mod.Name)
+			errors = append(errors, err.Error())
+			continue
 		}
 		defer remoteFile.Body.Close()
 
 		_, err = io.Copy(modFile, remoteFile.Body)
 		if err != nil {
-			return err
+			m.log.Println("ERRO:", "Failed Write to:", modPath)
+			errors = append(errors, err.Error())
+			continue
 		}
+		m.log.Println("INFO:", "Complete install:", mod.Name)
 	}
+	m.log.Println("INFO:", "Finish mcm")
+
+	if len(errors) > 0 {
+		return fmt.Errorf("%d errors occurred:\n%s",
+			len(errors), strings.Join(errors, "\n"))
+	}
+
 	return nil
 }
 
@@ -112,7 +136,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	m, err := NewManager(flag.Arg(0))
+	m, err := NewManager(flag.Arg(0), os.Stdout)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "mcm:", err)
 		os.Exit(1)
