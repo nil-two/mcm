@@ -24,7 +24,7 @@ func init() {
 
 func usage() {
 	os.Stderr.WriteString(`
-Usage: mcm [OPTION]... [FILE]...
+Usage: mcm [OPTION]... RECIPE
 
 Options:
 	--help       show this help message
