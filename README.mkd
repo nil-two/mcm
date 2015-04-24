@@ -3,7 +3,7 @@ mcm
 Manage MOD of Minecraft with TOML recipe file.
 
 ```
-$ mcm recipe.tml 
+$ mcm recipe.toml 
 2015/04/21 18:08:11 INFO: Start mcm
 2015/04/21 18:08:11 INFO: Start install: ComputerCraft1.72.jar
 2015/04/21 18:08:11 INFO: Download from: http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download
@@ -31,11 +31,11 @@ Options:
 	--version    print the version
 
 
-$ mcm recipe.tml
-(Download MOD using recipe.tml)
+$ mcm recipe.toml
+(Download MOD using recipe.toml)
 
-$ mcm 1.7.10.tml
-(Download MOD using 1.7.10.tml)
+$ mcm 1.7.10.toml
+(Download MOD using 1.7.10.toml)
 ```
 
 Recipe
