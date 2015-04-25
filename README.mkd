@@ -13,9 +13,6 @@ $ mcm recipe.toml
 2015/04/25 15:58:02 INFO: Start install: chocolateQuest-1.7.10-1.0.jar
 2015/04/25 15:58:02 INFO: Download from: http://addons.curse.cursecdn.com/files/2227/53/chocolateQuest-1.7.10-1.0.jar
 2015/04/25 15:58:02 INFO: Install to: /home/wara/.minecraft/mods/chocolateQuest-1.7.10-1.0.jar
-2015/04/25 15:58:05 INFO: Start install: Bamboo-2.6.8.3.jar
-2015/04/25 15:58:05 INFO: Download from: https://dl.dropboxusercontent.com/u/37248864/Bamboo-2.6.8.3.jar
-2015/04/25 15:58:07 INFO: Install to: /home/wara/.minecraft/mods/Bamboo-2.6.8.3.jar
 ```
 
 Download
