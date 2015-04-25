@@ -4,17 +4,18 @@ Manage MOD of Minecraft with TOML recipe file.
 
 ```
 $ mcm recipe.toml 
-2015/04/21 18:08:11 INFO: Start mcm
-2015/04/21 18:08:11 INFO: Start install: ComputerCraft1.72.jar
-2015/04/21 18:08:11 INFO: Download from: http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download
-2015/04/21 18:08:14 INFO: Complete install: ComputerCraft1.72.jar
-2015/04/21 18:08:14 INFO: Start install: chocolateQuest-1.7.10-1.0.jar
-2015/04/21 18:08:14 INFO: Download from: http://addons.curse.cursecdn.com/files/2227/53/chocolateQuest-1.7.10-1.0.jar
-2015/04/21 18:08:18 INFO: Complete install: chocolateQuest-1.7.10-1.0.jar
-2015/04/21 18:08:18 INFO: Start install: Bamboo-2.6.8.3.jar
-2015/04/21 18:08:18 INFO: Download from: https://dl.dropboxusercontent.com/u/37248864/Bamboo-2.6.8.3.jar
-2015/04/21 18:08:21 INFO: Complete install: Bamboo-2.6.8.3.jar
-2015/04/21 18:08:21 INFO: Finish mcm
+2015/04/25 15:57:59 INFO: Start mcm
+2015/04/25 15:57:59 INFO: Create mods directory
+2015/04/25 15:57:59 INFO: Start install mods to: /home/wara/.minecraft/mods
+2015/04/25 15:57:59 INFO: Start install: ComputerCraft1.72.jar
+2015/04/25 15:57:59 INFO: Download from: http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download
+2015/04/25 15:58:00 INFO: Install to: /home/wara/.minecraft/mods/ComputerCraft1.72.jar
+2015/04/25 15:58:02 INFO: Start install: chocolateQuest-1.7.10-1.0.jar
+2015/04/25 15:58:02 INFO: Download from: http://addons.curse.cursecdn.com/files/2227/53/chocolateQuest-1.7.10-1.0.jar
+2015/04/25 15:58:02 INFO: Install to: /home/wara/.minecraft/mods/chocolateQuest-1.7.10-1.0.jar
+2015/04/25 15:58:05 INFO: Start install: Bamboo-2.6.8.3.jar
+2015/04/25 15:58:05 INFO: Download from: https://dl.dropboxusercontent.com/u/37248864/Bamboo-2.6.8.3.jar
+2015/04/25 15:58:07 INFO: Install to: /home/wara/.minecraft/mods/Bamboo-2.6.8.3.jar
 ```
 
 Download
