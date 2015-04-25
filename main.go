@@ -41,7 +41,7 @@ mcm: v0.1.0
 `[1:])
 }
 
-func isExist(path string) bool {
+func existPath(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
 }
@@ -117,7 +117,7 @@ func (m *Manager) Download() error {
 	m.log.Println("INFO:", "Start mcm")
 	for _, mod := range m.Mods {
 		modPath := filepath.Join(m.root, "mods", mod.Name)
-		if isExist(modPath) {
+		if existPath(modPath) {
 			m.log.Println("INFO:", "Already installed:", mod.Name)
 			continue
 		}
