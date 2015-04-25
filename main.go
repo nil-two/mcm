@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -45,6 +46,33 @@ func isExist(path string) bool {
 	return !os.IsNotExist(err)
 }
 
+type Profile struct {
+	Profiles map[string]struct {
+		GameDir       string
+		LastVersionId string
+	}
+}
+
+func LoadProfile() (*Profile, error) {
+	profPath := filepath.Join(minecraftPath, "launcher_profiles.json")
+	profFile, err := os.Open(profPath)
+	if err != nil {
+		return nil, err
+	}
+	defer profFile.Close()
+
+	prof := Profile{}
+	if err = json.NewDecoder(profFile).Decode(&prof); err != nil {
+		return nil, err
+	}
+	return &prof, nil
+}
+
+func (p *Profile) ExistName(name string) bool {
+	_, ok := p.Profiles[name]
+	return ok
+}
+
 type Mod struct {
 	Name string `toml:"name"`
 	URL  string `toml:"url"`
@@ -52,21 +80,34 @@ type Mod struct {
 
 type Manager struct {
 	log  *log.Logger
-	Root string `toml:"root"`
+	root string
+	Name string `toml:"name"`
 	Mods []Mod  `toml:"mod"`
 }
 
 func NewManager(confPath string, logWriter io.Writer) (*Manager, error) {
 	m := &Manager{
-		log:  log.New(logWriter, "", log.LstdFlags),
-		Root: minecraftPath,
+		log: log.New(logWriter, "", log.LstdFlags),
 	}
-
 	_, err := toml.DecodeFile(confPath, &m)
 	if err != nil {
 		return nil, err
 	}
-	m.Root = filepath.Clean(m.Root)
+
+	prof, err := LoadProfile()
+	if err != nil {
+		return nil, err
+	}
+	switch {
+	case m.Name == "":
+		m.root = minecraftPath
+	case !prof.ExistName(m.Name):
+		return nil, fmt.Errorf("invalid version name: %s", m.Name)
+	case prof.Profiles[m.Name].GameDir == "":
+		m.root = minecraftPath
+	default:
+		m.root = filepath.Join(m.root, prof.Profiles[m.Name].GameDir)
+	}
 	return m, nil
 }
 
@@ -75,7 +116,7 @@ func (m *Manager) Download() error {
 
 	m.log.Println("INFO:", "Start mcm")
 	for _, mod := range m.Mods {
-		modPath := filepath.Join(m.Root, "mods", mod.Name)
+		modPath := filepath.Join(m.root, "mods", mod.Name)
 		if isExist(modPath) {
 			m.log.Println("INFO:", "Already installed:", mod.Name)
 			continue
