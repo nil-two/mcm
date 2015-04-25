@@ -79,10 +79,11 @@ type Mod struct {
 }
 
 type Manager struct {
-	log  *log.Logger
-	root string
-	Name string `toml:"name"`
-	Mods []Mod  `toml:"mod"`
+	log    *log.Logger
+	errors []string
+	root   string
+	Name   string `toml:"name"`
+	Mods   []Mod  `toml:"mod"`
 }
 
 func NewManager(confPath string, logWriter io.Writer) (*Manager, error) {
@@ -111,57 +112,66 @@ func NewManager(confPath string, logWriter io.Writer) (*Manager, error) {
 	return m, nil
 }
 
+func (m *Manager) InfoLog(messages ...string) {
+	m.log.Println("INFO:", strings.Join(messages, " "))
+}
+
+func (m *Manager) ErrorLog(err error, messages ...string) {
+	m.log.Println("ERRO:", strings.Join(messages, " "))
+	m.errors = append(m.errors, err.Error())
+}
+
+func (m *Manager) FatalLog(messages ...string) {
+	m.log.Println("FATA:", strings.Join(messages, " "))
+}
+
 func (m *Manager) Download() error {
-	var errors []string
 	modsPath := filepath.Join(m.root, "mods")
 
-	m.log.Println("INFO:", "Start mcm")
+	m.InfoLog("Start mcm")
 	if !existPath(modsPath) {
-		m.log.Println("INFO:", "Create mods directory")
+		m.InfoLog("Create mods directory")
 		if err := os.MkdirAll(modsPath, 0755); err != nil {
-			m.log.Println("FATA:", "Failed create mods directory")
+			m.FatalLog("Failed create mods directory")
 			return err
 		}
 	}
+
+	m.InfoLog("Start install mods to:", modsPath)
 	for _, mod := range m.Mods {
 		modPath := filepath.Join(modsPath, mod.Name)
 		if existPath(modPath) {
-			m.log.Println("INFO:", "Already installed:", mod.Name)
+			m.InfoLog("Already installed:", mod.Name)
 			continue
 		}
 
-		m.log.Println("INFO:", "Start install:", mod.Name)
+		m.InfoLog("Start install:", mod.Name)
 		modFile, err := os.Create(modPath)
 		if err != nil {
-			m.log.Println("ERRO:", "Failed create file:", modPath)
-			errors = append(errors, err.Error())
+			m.ErrorLog(err, "Failed create file:", modPath)
 			continue
 		}
 
-		m.log.Println("INFO:", "Download from:", mod.URL)
+		m.InfoLog("Download from:", mod.URL)
 		remoteFile, err := http.Get(mod.URL)
 		if err != nil {
-			m.log.Println("ERRO:", "Failed Download:", mod.Name)
-			errors = append(errors, err.Error())
+			m.ErrorLog(err, "Failed download:", mod.URL)
 			continue
 		}
 		defer remoteFile.Body.Close()
 
+		m.InfoLog("Install to:", modPath)
 		_, err = io.Copy(modFile, remoteFile.Body)
 		if err != nil {
-			m.log.Println("ERRO:", "Failed Write to:", modPath)
-			errors = append(errors, err.Error())
+			m.ErrorLog(err, "Failed write to:", modPath)
 			continue
 		}
-		m.log.Println("INFO:", "Complete install:", mod.Name)
 	}
-	m.log.Println("INFO:", "Finish mcm")
 
-	if len(errors) > 0 {
+	if len(m.errors) > 0 {
 		return fmt.Errorf("%d errors occurred:\n%s",
-			len(errors), strings.Join(errors, "\n"))
+			len(m.errors), strings.Join(m.errors, "\n"))
 	}
-
 	return nil
 }
 
