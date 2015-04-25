@@ -43,7 +43,7 @@ mcm: v0.1.0
 
 func existPath(path string) bool {
 	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
+	return err == nil
 }
 
 type Profile struct {
@@ -113,10 +113,18 @@ func NewManager(confPath string, logWriter io.Writer) (*Manager, error) {
 
 func (m *Manager) Download() error {
 	var errors []string
+	modsPath := filepath.Join(m.root, "mods")
 
 	m.log.Println("INFO:", "Start mcm")
+	if !existPath(modsPath) {
+		m.log.Println("INFO:", "Create mods directory")
+		if err := os.MkdirAll(modsPath, 0755); err != nil {
+			m.log.Println("FATA:", "Failed create mods directory")
+			return err
+		}
+	}
 	for _, mod := range m.Mods {
-		modPath := filepath.Join(m.root, "mods", mod.Name)
+		modPath := filepath.Join(modsPath, mod.Name)
 		if existPath(modPath) {
 			m.log.Println("INFO:", "Already installed:", mod.Name)
 			continue
