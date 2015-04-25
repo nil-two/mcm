@@ -14,14 +14,14 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-var homePath string
+var minecraftPath string
 
 func init() {
-	h, err := homedir.Dir()
+	homePath, err := homedir.Dir()
 	if err != nil {
 		panic(err)
 	}
-	homePath = h
+	minecraftPath = filepath.Join(homePath, ".minecraft")
 }
 
 func usage() {
@@ -59,7 +59,7 @@ type Manager struct {
 func NewManager(confPath string, logWriter io.Writer) (*Manager, error) {
 	m := &Manager{
 		log:  log.New(logWriter, "", log.LstdFlags),
-		Root: filepath.Join(homePath, ".minecraft"),
+		Root: minecraftPath,
 	}
 
 	_, err := toml.DecodeFile(confPath, &m)
