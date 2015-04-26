@@ -37,7 +37,7 @@ Options:
 
 func version() {
 	os.Stderr.WriteString(`
-mcm: v0.3.0
+mcm: v0.4.0
 `[1:])
 }
 
