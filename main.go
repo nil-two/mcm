@@ -136,28 +136,6 @@ func (m *Manager) LoadRecipe(recipePath string) error {
 	return nil
 }
 
-func (m *Manager) Execute(recipePath string) error {
-	m.InfoLog("Start mcm")
-	if err := m.LoadProfile(); err != nil {
-		return err
-	}
-	if err := m.LoadRecipe(recipePath); err != nil {
-		return err
-	}
-	if err := m.DownloadMods(); err != nil {
-		return err
-	}
-	if err := m.DownloadResourcePacks(); err != nil {
-		return err
-	}
-
-	if len(m.errors) > 0 {
-		return fmt.Errorf("%d errors occurred:\n%s",
-			len(m.errors), strings.Join(m.errors, "\n"))
-	}
-	return nil
-}
-
 func (m *Manager) DownloadMods() error {
 	modsPath := filepath.Join(m.root, "mods")
 
@@ -242,6 +220,28 @@ func (m *Manager) DownloadResourcePacks() error {
 			m.ErrorLog(err, "Failed write to:", resourcepackPath)
 			continue
 		}
+	}
+	return nil
+}
+
+func (m *Manager) Execute(recipePath string) error {
+	m.InfoLog("Start mcm")
+	if err := m.LoadProfile(); err != nil {
+		return err
+	}
+	if err := m.LoadRecipe(recipePath); err != nil {
+		return err
+	}
+	if err := m.DownloadMods(); err != nil {
+		return err
+	}
+	if err := m.DownloadResourcePacks(); err != nil {
+		return err
+	}
+
+	if len(m.errors) > 0 {
+		return fmt.Errorf("%d errors occurred:\n%s",
+			len(m.errors), strings.Join(m.errors, "\n"))
 	}
 	return nil
 }
