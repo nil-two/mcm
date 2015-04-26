@@ -63,18 +63,24 @@ type Mod struct {
 	URL  string `toml:"url"`
 }
 
+type ResourcePack struct {
+	Name string `toml:"name"`
+	URL  string `toml:"url"`
+}
+
 type Manager struct {
-	log    *log.Logger
-	prof   *Profile
-	errors []string
-	root   string
-	Name   string `toml:"name"`
-	Mods   []Mod  `toml:"mod"`
+	log           *log.Logger
+	prof          *Profile
+	errors        []string
+	root          string
+	Name          string         `toml:"name"`
+	Mods          []Mod          `toml:"mod"`
+	ResourcePacks []ResourcePack `toml:"resourcepack"`
 }
 
 func NewManager(logWriter io.Writer) *Manager {
 	return &Manager{
-		log:  log.New(logWriter, "", log.LstdFlags),
+		log: log.New(logWriter, "", log.LstdFlags),
 	}
 }
 
@@ -141,6 +147,9 @@ func (m *Manager) Execute(recipePath string) error {
 	if err := m.DownloadMods(); err != nil {
 		return err
 	}
+	if err := m.DownloadResourcePacks(); err != nil {
+		return err
+	}
 
 	if len(m.errors) > 0 {
 		return fmt.Errorf("%d errors occurred:\n%s",
@@ -187,6 +196,50 @@ func (m *Manager) DownloadMods() error {
 		_, err = io.Copy(modFile, remoteFile.Body)
 		if err != nil {
 			m.ErrorLog(err, "Failed write to:", modPath)
+			continue
+		}
+	}
+	return nil
+}
+
+func (m *Manager) DownloadResourcePacks() error {
+	resourcepacksPath := filepath.Join(m.root, "resourcepacks")
+
+	m.InfoLog("Start install resourcepacks to:", resourcepacksPath)
+	if !existPath(resourcepacksPath) {
+		m.InfoLog("Create resourcepacks directory")
+		if err := os.MkdirAll(resourcepacksPath, 0755); err != nil {
+			m.FatalLog("Failed create resourcepacks directory")
+			return err
+		}
+	}
+
+	for _, resourcepack := range m.ResourcePacks {
+		resourcepackPath := filepath.Join(resourcepacksPath, resourcepack.Name)
+		if existPath(resourcepackPath) {
+			m.InfoLog("Already installed:", resourcepack.Name)
+			continue
+		}
+
+		m.InfoLog("Start install:", resourcepack.Name)
+		resourcepackFile, err := os.Create(resourcepackPath)
+		if err != nil {
+			m.ErrorLog(err, "Failed create file:", resourcepackPath)
+			continue
+		}
+
+		m.InfoLog("Download from:", resourcepack.URL)
+		remoteFile, err := http.Get(resourcepack.URL)
+		if err != nil {
+			m.ErrorLog(err, "Failed download:", resourcepack.URL)
+			continue
+		}
+		defer remoteFile.Body.Close()
+
+		m.InfoLog("Install to:", resourcepackPath)
+		_, err = io.Copy(resourcepackFile, remoteFile.Body)
+		if err != nil {
+			m.ErrorLog(err, "Failed write to:", resourcepackPath)
 			continue
 		}
 	}
