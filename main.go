@@ -53,21 +53,6 @@ type Profile struct {
 	}
 }
 
-func LoadProfile() (*Profile, error) {
-	profPath := filepath.Join(minecraftPath, "launcher_profiles.json")
-	profFile, err := os.Open(profPath)
-	if err != nil {
-		return nil, err
-	}
-	defer profFile.Close()
-
-	prof := Profile{}
-	if err = json.NewDecoder(profFile).Decode(&prof); err != nil {
-		return nil, err
-	}
-	return &prof, nil
-}
-
 func (p *Profile) ExistName(name string) bool {
 	_, ok := p.Profiles[name]
 	return ok
@@ -80,36 +65,17 @@ type Mod struct {
 
 type Manager struct {
 	log    *log.Logger
+	prof   *Profile
 	errors []string
 	root   string
 	Name   string `toml:"name"`
 	Mods   []Mod  `toml:"mod"`
 }
 
-func NewManager(confPath string, logWriter io.Writer) (*Manager, error) {
-	m := &Manager{
-		log: log.New(logWriter, "", log.LstdFlags),
+func NewManager(logWriter io.Writer) *Manager {
+	return &Manager{
+		log:  log.New(logWriter, "", log.LstdFlags),
 	}
-	_, err := toml.DecodeFile(confPath, &m)
-	if err != nil {
-		return nil, err
-	}
-
-	prof, err := LoadProfile()
-	if err != nil {
-		return nil, err
-	}
-	switch {
-	case m.Name == "":
-		m.root = minecraftPath
-	case !prof.ExistName(m.Name):
-		return nil, fmt.Errorf("invalid version name: %s", m.Name)
-	case prof.Profiles[m.Name].GameDir == "":
-		m.root = minecraftPath
-	default:
-		m.root = filepath.Join(m.root, prof.Profiles[m.Name].GameDir)
-	}
-	return m, nil
 }
 
 func (m *Manager) InfoLog(messages ...string) {
@@ -125,8 +91,53 @@ func (m *Manager) FatalLog(messages ...string) {
 	m.log.Println("FATA:", strings.Join(messages, " "))
 }
 
-func (m *Manager) Execute() error {
+func (m *Manager) LoadProfile() error {
+	profPath := filepath.Join(minecraftPath, "launcher_profiles.json")
+
+	m.InfoLog("Load profile:", profPath)
+	profFile, err := os.Open(profPath)
+	if err != nil {
+		m.FatalLog("Failed open profile:", profPath)
+		return err
+	}
+	defer profFile.Close()
+
+	m.prof = &Profile{}
+	if err = json.NewDecoder(profFile).Decode(m.prof); err != nil {
+		m.FatalLog("Failed read profile:", profPath)
+		return err
+	}
+	return nil
+}
+
+func (m *Manager) LoadRecipe(recipePath string) error {
+	m.InfoLog("Load recipe:", recipePath)
+	_, err := toml.DecodeFile(recipePath, m)
+	if err != nil {
+		m.FatalLog("Failed load recipe")
+		return err
+	}
+
+	if m.Name != "" && !m.prof.ExistName(m.Name) {
+		m.FatalLog("Failed find the version name:", m.Name)
+		return fmt.Errorf("invalid version name: %s", m.Name)
+	}
+	if m.Name == "" || m.prof.Profiles[m.Name].GameDir == "" {
+		m.root = minecraftPath
+		return nil
+	}
+	m.root = m.prof.Profiles[m.Name].GameDir
+	return nil
+}
+
+func (m *Manager) Execute(recipePath string) error {
 	m.InfoLog("Start mcm")
+	if err := m.LoadProfile(); err != nil {
+		return err
+	}
+	if err := m.LoadRecipe(recipePath); err != nil {
+		return err
+	}
 	if err := m.DownloadMods(); err != nil {
 		return err
 	}
@@ -201,13 +212,10 @@ func main() {
 		usage()
 		os.Exit(1)
 	}
+	recipePath := flag.Arg(0)
 
-	m, err := NewManager(flag.Arg(0), os.Stdout)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "mcm:", err)
-		os.Exit(1)
-	}
-	if err = m.Execute(); err != nil {
+	m := NewManager(os.Stdout)
+	if err := m.Execute(recipePath); err != nil {
 		fmt.Fprintln(os.Stderr, "mcm:", err)
 		os.Exit(1)
 	}

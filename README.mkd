@@ -4,15 +4,17 @@ Manage MOD of Minecraft with TOML recipe file.
 
 ```
 $ mcm recipe.toml 
-2015/04/25 15:57:59 INFO: Start mcm
-2015/04/25 15:57:59 INFO: Create mods directory
-2015/04/25 15:57:59 INFO: Start install mods to: /home/wara/.minecraft/mods
-2015/04/25 15:57:59 INFO: Start install: ComputerCraft1.72.jar
-2015/04/25 15:57:59 INFO: Download from: http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download
-2015/04/25 15:58:00 INFO: Install to: /home/wara/.minecraft/mods/ComputerCraft1.72.jar
-2015/04/25 15:58:02 INFO: Start install: chocolateQuest-1.7.10-1.0.jar
-2015/04/25 15:58:02 INFO: Download from: http://addons.curse.cursecdn.com/files/2227/53/chocolateQuest-1.7.10-1.0.jar
-2015/04/25 15:58:02 INFO: Install to: /home/wara/.minecraft/mods/chocolateQuest-1.7.10-1.0.jar
+2015/04/26 10:12:08 INFO: Start mcm
+2015/04/26 10:12:08 INFO: Load profile: /home/wara/.minecraft/launcher_profiles.json
+2015/04/26 10:12:08 INFO: Load recipe: recipe.toml
+2015/04/26 10:12:08 INFO: Start install mods to: /home/wara/.minecraft/mods
+2015/04/26 10:12:08 INFO: Create mods directory
+2015/04/26 10:12:08 INFO: Start install: ComputerCraft1.72.jar
+2015/04/26 10:12:08 INFO: Download from: http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download
+2015/04/26 10:12:10 INFO: Install to: /home/wara/.minecraft/mods/ComputerCraft1.72.jar
+2015/04/26 10:12:11 INFO: Start install: chocolateQuest-1.7.10-1.0.jar
+2015/04/26 10:12:11 INFO: Download from: http://addons.curse.cursecdn.com/files/2227/53/chocolateQuest-1.7.10-1.0.jar
+2015/04/26 10:12:12 INFO: Install to: /home/wara/.minecraft/mods/chocolateQuest-1.7.10-1.0.jar
 ```
 
 Download
@@ -53,7 +55,7 @@ url  = "<MOD URL>"
 #...
 ```
 
-###example
+###Example
 ```toml
 [[mod]]
 name = "ComputerCraft1.72.jar"
