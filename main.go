@@ -41,7 +41,7 @@ mcm: v0.3.0
 `[1:])
 }
 
-func existPath(path string) bool {
+func exists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
 }
@@ -53,7 +53,7 @@ type Profile struct {
 	}
 }
 
-func (p *Profile) ExistName(name string) bool {
+func (p *Profile) Valid(name string) bool {
 	_, ok := p.Profiles[name]
 	return ok
 }
@@ -78,53 +78,53 @@ type Manager struct {
 	ResourcePacks []ResourcePack `toml:"resourcepack"`
 }
 
-func NewManager(logWriter io.Writer) *Manager {
+func NewManager(w io.Writer) *Manager {
 	return &Manager{
-		log: log.New(logWriter, "", log.LstdFlags),
+		log: log.New(w, "", log.LstdFlags),
 	}
 }
 
-func (m *Manager) InfoLog(messages ...string) {
-	m.log.Println("INFO:", strings.Join(messages, " "))
+func (m *Manager) InfoLog(a ...string) {
+	m.log.Println("INFO:", strings.Join(a, " "))
 }
 
-func (m *Manager) ErrorLog(err error, messages ...string) {
-	m.log.Println("ERRO:", strings.Join(messages, " "))
+func (m *Manager) ErrorLog(err error, a ...string) {
+	m.log.Println("ERRO:", strings.Join(a, " "))
 	m.errors = append(m.errors, err.Error())
 }
 
-func (m *Manager) FatalLog(messages ...string) {
-	m.log.Println("FATA:", strings.Join(messages, " "))
+func (m *Manager) FatalLog(a ...string) {
+	m.log.Println("FATA:", strings.Join(a, " "))
 }
 
 func (m *Manager) LoadProfile() error {
-	profPath := filepath.Join(minecraftPath, "launcher_profiles.json")
+	path := filepath.Join(minecraftPath, "launcher_profiles.json")
 
-	m.InfoLog("Load profile:", profPath)
-	profFile, err := os.Open(profPath)
+	m.InfoLog("Load profile:", path)
+	f, err := os.Open(path)
 	if err != nil {
-		m.FatalLog("Failed open profile:", profPath)
+		m.FatalLog("Failed open profile:", path)
 		return err
 	}
-	defer profFile.Close()
+	defer f.Close()
 
 	m.prof = &Profile{}
-	if err = json.NewDecoder(profFile).Decode(m.prof); err != nil {
-		m.FatalLog("Failed read profile:", profPath)
+	if err = json.NewDecoder(f).Decode(m.prof); err != nil {
+		m.FatalLog("Failed read profile:", path)
 		return err
 	}
 	return nil
 }
 
-func (m *Manager) LoadRecipe(recipePath string) error {
-	m.InfoLog("Load recipe:", recipePath)
-	_, err := toml.DecodeFile(recipePath, m)
+func (m *Manager) LoadRecipe(path string) error {
+	m.InfoLog("Load recipe:", path)
+	_, err := toml.DecodeFile(path, m)
 	if err != nil {
 		m.FatalLog("Failed load recipe")
 		return err
 	}
 
-	if m.Name != "" && !m.prof.ExistName(m.Name) {
+	if m.Name != "" && !m.prof.Valid(m.Name) {
 		m.FatalLog("Failed find the version name:", m.Name)
 		return fmt.Errorf("invalid version name: %s", m.Name)
 	}
@@ -137,43 +137,43 @@ func (m *Manager) LoadRecipe(recipePath string) error {
 }
 
 func (m *Manager) DownloadMods() error {
-	modsPath := filepath.Join(m.root, "mods")
+	rootPath := filepath.Join(m.root, "mods")
 
-	m.InfoLog("Start install mods to:", modsPath)
-	if !existPath(modsPath) {
+	m.InfoLog("Start install mods to:", rootPath)
+	if !exists(rootPath) {
 		m.InfoLog("Create mods directory")
-		if err := os.MkdirAll(modsPath, 0755); err != nil {
+		if err := os.MkdirAll(rootPath, 0755); err != nil {
 			m.FatalLog("Failed create mods directory")
 			return err
 		}
 	}
 
 	for _, mod := range m.Mods {
-		modPath := filepath.Join(modsPath, mod.Name)
-		if existPath(modPath) {
+		path := filepath.Join(rootPath, mod.Name)
+		if exists(path) {
 			m.InfoLog("Already installed:", mod.Name)
 			continue
 		}
 
 		m.InfoLog("Start install:", mod.Name)
-		modFile, err := os.Create(modPath)
+		f, err := os.Create(path)
 		if err != nil {
-			m.ErrorLog(err, "Failed create file:", modPath)
+			m.ErrorLog(err, "Failed create file:", path)
 			continue
 		}
 
 		m.InfoLog("Download from:", mod.URL)
-		remoteFile, err := http.Get(mod.URL)
+		res, err := http.Get(mod.URL)
 		if err != nil {
 			m.ErrorLog(err, "Failed download:", mod.URL)
 			continue
 		}
-		defer remoteFile.Body.Close()
+		defer res.Body.Close()
 
-		m.InfoLog("Install to:", modPath)
-		_, err = io.Copy(modFile, remoteFile.Body)
+		m.InfoLog("Install to:", path)
+		_, err = io.Copy(f, res.Body)
 		if err != nil {
-			m.ErrorLog(err, "Failed write to:", modPath)
+			m.ErrorLog(err, "Failed write to:", path)
 			continue
 		}
 	}
@@ -181,43 +181,43 @@ func (m *Manager) DownloadMods() error {
 }
 
 func (m *Manager) DownloadResourcePacks() error {
-	resourcepacksPath := filepath.Join(m.root, "resourcepacks")
+	fullPath := filepath.Join(m.root, "resourcepacks")
 
-	m.InfoLog("Start install resourcepacks to:", resourcepacksPath)
-	if !existPath(resourcepacksPath) {
+	m.InfoLog("Start install resourcepacks to:", fullPath)
+	if !exists(fullPath) {
 		m.InfoLog("Create resourcepacks directory")
-		if err := os.MkdirAll(resourcepacksPath, 0755); err != nil {
+		if err := os.MkdirAll(fullPath, 0755); err != nil {
 			m.FatalLog("Failed create resourcepacks directory")
 			return err
 		}
 	}
 
 	for _, resourcepack := range m.ResourcePacks {
-		resourcepackPath := filepath.Join(resourcepacksPath, resourcepack.Name)
-		if existPath(resourcepackPath) {
+		path := filepath.Join(fullPath, resourcepack.Name)
+		if exists(path) {
 			m.InfoLog("Already installed:", resourcepack.Name)
 			continue
 		}
 
 		m.InfoLog("Start install:", resourcepack.Name)
-		resourcepackFile, err := os.Create(resourcepackPath)
+		f, err := os.Create(path)
 		if err != nil {
-			m.ErrorLog(err, "Failed create file:", resourcepackPath)
+			m.ErrorLog(err, "Failed create file:", path)
 			continue
 		}
 
 		m.InfoLog("Download from:", resourcepack.URL)
-		remoteFile, err := http.Get(resourcepack.URL)
+		res, err := http.Get(resourcepack.URL)
 		if err != nil {
 			m.ErrorLog(err, "Failed download:", resourcepack.URL)
 			continue
 		}
-		defer remoteFile.Body.Close()
+		defer res.Body.Close()
 
-		m.InfoLog("Install to:", resourcepackPath)
-		_, err = io.Copy(resourcepackFile, remoteFile.Body)
+		m.InfoLog("Install to:", path)
+		_, err = io.Copy(f, res.Body)
 		if err != nil {
-			m.ErrorLog(err, "Failed write to:", resourcepackPath)
+			m.ErrorLog(err, "Failed write to:", path)
 			continue
 		}
 	}
@@ -265,10 +265,10 @@ func main() {
 		usage()
 		os.Exit(1)
 	}
-	recipePath := flag.Arg(0)
+	recipe := flag.Arg(0)
 
 	m := NewManager(os.Stdout)
-	if err := m.Execute(recipePath); err != nil {
+	if err := m.Execute(recipe); err != nil {
 		fmt.Fprintln(os.Stderr, "mcm:", err)
 		os.Exit(1)
 	}
