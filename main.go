@@ -58,12 +58,7 @@ func (p *Profile) Valid(name string) bool {
 	return ok
 }
 
-type Mod struct {
-	Name string `toml:"name"`
-	URL  string `toml:"url"`
-}
-
-type ResourcePack struct {
+type Package struct {
 	Name string `toml:"name"`
 	URL  string `toml:"url"`
 }
@@ -73,9 +68,9 @@ type Manager struct {
 	prof          *Profile
 	errors        []string
 	root          string
-	Name          string         `toml:"name"`
-	Mods          []Mod          `toml:"mod"`
-	ResourcePacks []ResourcePack `toml:"resourcepack"`
+	Name          string    `toml:"name"`
+	Mods          []Package `toml:"mod"`
+	ResourcePacks []Package `toml:"resourcepack"`
 }
 
 func NewManager(w io.Writer) *Manager {
@@ -136,80 +131,36 @@ func (m *Manager) LoadRecipe(path string) error {
 	return nil
 }
 
-func (m *Manager) DownloadMods() error {
-	rootPath := filepath.Join(m.root, "mods")
+func (m *Manager) Download(kind string, a []Package) error {
+	rootPath := filepath.Join(m.root, kind)
 
-	m.InfoLog("Start install mods to:", rootPath)
+	m.InfoLog("Start install "+kind+" to:", rootPath)
 	if !exists(rootPath) {
-		m.InfoLog("Create mods directory")
+		m.InfoLog("Create "+kind+" directory")
 		if err := os.MkdirAll(rootPath, 0755); err != nil {
-			m.FatalLog("Failed create mods directory")
+			m.FatalLog("Failed create "+kind+" directory")
 			return err
 		}
 	}
 
-	for _, mod := range m.Mods {
-		path := filepath.Join(rootPath, mod.Name)
+	for _, p := range a {
+		path := filepath.Join(rootPath, p.Name)
 		if exists(path) {
-			m.InfoLog("Already installed:", mod.Name)
+			m.InfoLog("Already installed:", p.Name)
 			continue
 		}
 
-		m.InfoLog("Start install:", mod.Name)
+		m.InfoLog("Start install:", p.Name)
 		f, err := os.Create(path)
 		if err != nil {
 			m.ErrorLog(err, "Failed create file:", path)
 			continue
 		}
 
-		m.InfoLog("Download from:", mod.URL)
-		res, err := http.Get(mod.URL)
+		m.InfoLog("Download from:", p.URL)
+		res, err := http.Get(p.URL)
 		if err != nil {
-			m.ErrorLog(err, "Failed download:", mod.URL)
-			continue
-		}
-		defer res.Body.Close()
-
-		m.InfoLog("Install to:", path)
-		_, err = io.Copy(f, res.Body)
-		if err != nil {
-			m.ErrorLog(err, "Failed write to:", path)
-			continue
-		}
-	}
-	return nil
-}
-
-func (m *Manager) DownloadResourcePacks() error {
-	fullPath := filepath.Join(m.root, "resourcepacks")
-
-	m.InfoLog("Start install resourcepacks to:", fullPath)
-	if !exists(fullPath) {
-		m.InfoLog("Create resourcepacks directory")
-		if err := os.MkdirAll(fullPath, 0755); err != nil {
-			m.FatalLog("Failed create resourcepacks directory")
-			return err
-		}
-	}
-
-	for _, resourcepack := range m.ResourcePacks {
-		path := filepath.Join(fullPath, resourcepack.Name)
-		if exists(path) {
-			m.InfoLog("Already installed:", resourcepack.Name)
-			continue
-		}
-
-		m.InfoLog("Start install:", resourcepack.Name)
-		f, err := os.Create(path)
-		if err != nil {
-			m.ErrorLog(err, "Failed create file:", path)
-			continue
-		}
-
-		m.InfoLog("Download from:", resourcepack.URL)
-		res, err := http.Get(resourcepack.URL)
-		if err != nil {
-			m.ErrorLog(err, "Failed download:", resourcepack.URL)
+			m.ErrorLog(err, "Failed download:", p.URL)
 			continue
 		}
 		defer res.Body.Close()
@@ -232,10 +183,10 @@ func (m *Manager) Execute(recipePath string) error {
 	if err := m.LoadRecipe(recipePath); err != nil {
 		return err
 	}
-	if err := m.DownloadMods(); err != nil {
+	if err := m.Download("mods", m.Mods); err != nil {
 		return err
 	}
-	if err := m.DownloadResourcePacks(); err != nil {
+	if err := m.Download("resourcepacks", m.ResourcePacks); err != nil {
 		return err
 	}
 
