@@ -125,10 +125,23 @@ func (m *Manager) FatalLog(messages ...string) {
 	m.log.Println("FATA:", strings.Join(messages, " "))
 }
 
-func (m *Manager) Download() error {
+func (m *Manager) Execute() error {
+	m.InfoLog("Start mcm")
+	if err := m.DownloadMods(); err != nil {
+		return err
+	}
+
+	if len(m.errors) > 0 {
+		return fmt.Errorf("%d errors occurred:\n%s",
+			len(m.errors), strings.Join(m.errors, "\n"))
+	}
+	return nil
+}
+
+func (m *Manager) DownloadMods() error {
 	modsPath := filepath.Join(m.root, "mods")
 
-	m.InfoLog("Start mcm")
+	m.InfoLog("Start install mods to:", modsPath)
 	if !existPath(modsPath) {
 		m.InfoLog("Create mods directory")
 		if err := os.MkdirAll(modsPath, 0755); err != nil {
@@ -137,7 +150,6 @@ func (m *Manager) Download() error {
 		}
 	}
 
-	m.InfoLog("Start install mods to:", modsPath)
 	for _, mod := range m.Mods {
 		modPath := filepath.Join(modsPath, mod.Name)
 		if existPath(modPath) {
@@ -167,11 +179,6 @@ func (m *Manager) Download() error {
 			continue
 		}
 	}
-
-	if len(m.errors) > 0 {
-		return fmt.Errorf("%d errors occurred:\n%s",
-			len(m.errors), strings.Join(m.errors, "\n"))
-	}
 	return nil
 }
 
@@ -200,7 +207,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "mcm:", err)
 		os.Exit(1)
 	}
-	if err = m.Download(); err != nil {
+	if err = m.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, "mcm:", err)
 		os.Exit(1)
 	}
