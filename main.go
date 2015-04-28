@@ -112,8 +112,13 @@ func (m *Manager) LoadProfile() error {
 }
 
 func (m *Manager) LoadRecipe(path string) error {
-	m.InfoLog("Load recipe:", path)
-	_, err := toml.DecodeFile(path, m)
+	fullPath, err := filepath.Abs(path)
+	if err != nil {
+		m.FatalLog("Invalid path:", err.Error())
+	}
+
+	m.InfoLog("Load recipe:", fullPath)
+	_, err = toml.DecodeFile(fullPath, m)
 	if err != nil {
 		m.FatalLog("Failed load recipe")
 		return err
