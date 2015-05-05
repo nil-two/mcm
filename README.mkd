@@ -3,26 +3,6 @@ mcm
 Manage MOD or ResourcePack of Minecraft
 with [TOML](https://github.com/toml-lang/toml) recipe file.
 
-```
-$ mcm recipe.toml 
-2015/04/26 12:57:50 INFO: Start mcm
-2015/04/26 12:57:50 INFO: Load profile: /home/wara/.minecraft/launcher_profiles.json
-2015/04/26 12:57:50 INFO: Load recipe: examples/recipe.toml
-2015/04/26 12:57:50 INFO: Start install mods to: /home/wara/.minecraft/mods
-2015/04/26 12:57:50 INFO: Create mods directory
-2015/04/26 12:57:50 INFO: Start install: ComputerCraft1.72.jar
-2015/04/26 12:57:50 INFO: Download from: http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download
-2015/04/26 12:57:51 INFO: Install to: /home/wara/.minecraft/mods/ComputerCraft1.72.jar
-2015/04/26 12:57:53 INFO: Start install: chocolateQuest-1.7.10-1.0.jar
-2015/04/26 12:57:53 INFO: Download from: http://addons.curse.cursecdn.com/files/2227/53/chocolateQuest-1.7.10-1.0.jar
-2015/04/26 12:57:53 INFO: Install to: /home/wara/.minecraft/mods/chocolateQuest-1.7.10-1.0.jar
-2015/04/26 12:57:56 INFO: Start install resourcepacks to: /home/wara/.minecraft/resourcepacks
-2015/04/26 12:57:56 INFO: Create resourcepacks directory
-2015/04/26 12:57:56 INFO: Start install: ocdpack187113693.zip
-2015/04/26 12:57:56 INFO: Download from: http://static.planetminecraft.com/files/resource_media/texture/1436/ocdpack187113693.zip
-2015/04/26 12:57:56 INFO: Install to: /home/wara/.minecraft/resourcepacks/ocdpack187113693.zip
-```
-
 Download
 -----
 See [releases](https://github.com/kusabashira/mcm/releases)
@@ -69,25 +49,6 @@ url  = "<ResourcePack URL>"
 
 #...
 ```
-
-###Example
-```toml
-[[mod]]
-name = "ComputerCraft1.72.jar"
-url  = "http://minecraft.curseforge.com/mc-mods/67504-computercraft/files/2228723/download"
-
-[[mod]]
-name = "chocolateQuest-1.7.10-1.0.jar"
-url  = "http://addons.curse.cursecdn.com/files/2227/53/chocolateQuest-1.7.10-1.0.jar"
-
-[[resourcepack]]
-name = "ocdpack187113693.zip"
-url  = "http://static.planetminecraft.com/files/resource_media/texture/1436/ocdpack187113693.zip"
-```
-ComputerCraft and ChocolateQuest will be install
-under ~/.minecraft/mods.
-
-oCd Pack will be install under ~/.minecraft/resourcepacks.
 
 License
 --------
