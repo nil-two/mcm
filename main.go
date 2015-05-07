@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/BurntSushi/toml"
@@ -18,11 +19,17 @@ import (
 var minecraftPath string
 
 func init() {
-	homePath, err := homedir.Dir()
-	if err != nil {
-		panic(err)
+	switch runtime.GOOS {
+	case "windows":
+		path := os.Getenv("APPDATA")
+		minecraftPath = filepath.Join(path, ".minecraft")
+	default:
+		path, err := homedir.Dir()
+		if err != nil {
+			panic(err)
+		}
+		minecraftPath = filepath.Join(path, ".minecraft")
 	}
-	minecraftPath = filepath.Join(homePath, ".minecraft")
 }
 
 func usage() {
@@ -141,9 +148,9 @@ func (m *Manager) Download(kind string, a []Package) error {
 
 	m.InfoLog("Start install "+kind+" to:", rootPath)
 	if !exists(rootPath) {
-		m.InfoLog("Create "+kind+" directory")
+		m.InfoLog("Create " + kind + " directory")
 		if err := os.MkdirAll(rootPath, 0755); err != nil {
-			m.FatalLog("Failed create "+kind+" directory")
+			m.FatalLog("Failed create " + kind + " directory")
 			return err
 		}
 	}
