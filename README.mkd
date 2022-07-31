@@ -5,7 +5,7 @@ with [TOML](https://github.com/toml-lang/toml) recipe file.
 
 Download
 -----
-See [releases](https://github.com/kusabashira/mcm/releases)
+See [releases](https://github.com/nil2nekoni/mcm/releases)
 
 Usage
 ------
@@ -56,4 +56,4 @@ MIT License
 
 Author
 -------
-kusabashira <kusabashira227@gmail.com>
+nil2 <nil2@nil2.org>
